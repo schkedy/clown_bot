@@ -34,19 +34,24 @@ async def add_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Проверяем, является ли пользователь тем, кто добавил бота
     bot_added_by = data['bot_added_by'].get(str(chat_id))
     if user_id != bot_added_by:
-        await context.bot.send_message(chat_id=chat_id, text="Только пользователь, добавивший бота, может управлять целевыми пользователями.")
+        await context.bot.send_message(chat_id=chat_id, text="Не, тебе нельзя.")
         return
     
     # Проверяем, является ли сообщение ответом на другое сообщение
     if not update.message.reply_to_message:
-        await context.bot.send_message(chat_id=chat_id, text="Ответьте командой /clown на сообщение пользователя, которого хотите сделать клоуном.")
+        await context.bot.send_message(chat_id=chat_id, text="Новых клоунов не видно")
         return
     
     try:
-        target_user = update.message.reply_to_message.from_user
-        if not target_user:
-            raise ValueError("Не удалось получить информацию о пользователе")
-            
+        # Получаем сообщение, на которое был сделан реплай
+        replied_message = update.message.reply_to_message
+        
+        # Проверяем, есть ли информация о пользователе
+        if not replied_message.from_user:
+            await context.bot.send_message(chat_id=chat_id, text="Не удалось получить информацию о пользователе. Попробуйте ответить на другое сообщение.")
+            return
+        
+        target_user = replied_message.from_user
         target_user_id = target_user.id
         target_user_name = target_user.full_name or target_user.username or "Неизвестный пользователь"
         
@@ -66,7 +71,7 @@ async def add_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
     except Exception as e:
         logger.error(f"Ошибка при добавлении целевого пользователя: {e}")
-        await context.bot.send_message(chat_id=chat_id, text="Произошла ошибка при обработке команды. Попробуйте еще раз.")
+        await context.bot.send_message(chat_id=chat_id, text="Не смог сделать его клоуном, пока...")
 
 async def remove_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
@@ -78,7 +83,7 @@ async def remove_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # Проверяем, является ли пользователь тем, кто добавил бота
     bot_added_by = data['bot_added_by'].get(str(chat_id))
     if user_id != bot_added_by:
-        await context.bot.send_message(chat_id=chat_id, text="Только пользователь, добавивший бота, может управлять целевыми пользователями.")
+        await context.bot.send_message(chat_id=chat_id, text="Не, тебе нельзя.")
         return
     
     # Проверяем, является ли сообщение ответом на другое сообщение
@@ -87,7 +92,7 @@ async def remove_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE)
         target_user_id = target_user.id
         target_user_name = target_user.full_name
     else:
-        await context.bot.send_message(chat_id=chat_id, text="Ответьте командой /unclown на сообщение пользователя, которого хотите перестать считать клоуном.")
+        await context.bot.send_message(chat_id=chat_id, text="Я не понял, кого ты перестал считать клоуном.")
         return
     
     # Проверяем, есть ли список целевых пользователей для этого чата
@@ -100,7 +105,7 @@ async def remove_target_user(update: Update, context: ContextTypes.DEFAULT_TYPE)
         save_data(data)
         await context.bot.send_message(chat_id=chat_id, text=f"{target_user_name} на некоторое время перестал быть клоуном")
     else:
-        await context.bot.send_message(chat_id=chat_id, text=f"{target_user_name} не найден в целевых.")
+        await context.bot.send_message(chat_id=chat_id, text=f"{target_user_name} не найден в списке клоунов.")
     
     await update.message.delete()
 
@@ -120,7 +125,7 @@ async def track_bot_added(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     # Отправляем сообщение о успешной регистрации
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id,
-                        text=f"Бот успешно добавлен! Пользователь {update.effective_user.full_name} имеет права управления."
+                        text=f"А сейчас будем искать клоунов..."
                     )
     except Exception as e:
         logger.error(f"Ошибка при отслеживании добавления бота: {e}") 
