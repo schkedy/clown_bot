@@ -12,6 +12,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id == GOSHA_USER_ID or update.message.from_user.id == TIMUR_USER_ID:
         try:
             # Пробуем поставить реакцию
+            
             await update.get_bot().set_message_reaction(
                 chat_id=update.message.chat_id,
                 message_id=update.message.message_id,
@@ -25,7 +26,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     """Основная функция запуска бота"""
-    # Создаем приложение
+    # Создаем приложение 
     application = Application.builder().token(BOT_TOKEN).build()
 
     # Добавляем обработчики
