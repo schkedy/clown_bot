@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bot.handlers.chat_settings import add_target_user, remove_target_user, track_bot_added
 from bot.handlers.reactions import send_clown_reaction
 from bot.config.config import BOT_TOKEN
